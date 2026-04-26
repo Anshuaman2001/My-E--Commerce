@@ -22,7 +22,27 @@ connectCloudinary();
 
 // middlewares
 app.use(express.json());
-app.use(cors());
+app.use(cors({
+    origin: function (origin, callback) {
+        // Allow requests with no origin (like mobile apps, curl, Postman)
+        if (!origin) return callback(null, true);
+        const allowedOrigins = [
+            'http://localhost:5173',
+            'http://localhost:5174',
+            process.env.FRONTEND_URL,
+            process.env.ADMIN_URL,
+        ].filter(Boolean);
+        // Allow all Vercel preview/production URLs for this project
+        if (
+            allowedOrigins.includes(origin) ||
+            /\.vercel\.app$/.test(origin)
+        ) {
+            return callback(null, true);
+        }
+        callback(new Error('Not allowed by CORS'));
+    },
+    credentials: true,
+}));
 
 // Serve product images from frontend assets folder
 app.use('/images', express.static(path.join(__dirname, '../frontend/src/assets')));
