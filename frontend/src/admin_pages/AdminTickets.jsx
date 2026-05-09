@@ -74,8 +74,9 @@ const AdminTickets = () => {
                                     <select 
                                         value={ticket.status} 
                                         onChange={(e) => updateTicketStatus(ticket._id, e.target.value)}
+                                        disabled={ticket.status === 'Resolved'}
                                         className={`text-xs font-bold px-3 py-1.5 rounded-full border outline-none ${
-                                            ticket.status === 'Resolved' ? 'bg-green-50 border-green-200 text-green-600' : 
+                                            ticket.status === 'Resolved' ? 'bg-green-50 border-green-200 text-green-600 opacity-60 cursor-not-allowed' : 
                                             ticket.status === 'In Progress' ? 'bg-blue-50 border-blue-200 text-blue-600' : 
                                             'bg-orange-50 border-orange-200 text-orange-600'
                                         }`}

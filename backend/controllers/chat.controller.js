@@ -151,6 +151,16 @@ const listTickets = async (req, res) => {
 const updateTicketStatus = async (req, res) => {
     try {
         const { ticketId, status } = req.body;
+        const ticket = await ticketModel.findById(ticketId);
+        
+        if (!ticket) {
+            return res.json({ success: false, message: "Ticket not found" });
+        }
+
+        if (ticket.status === 'Resolved') {
+            return res.json({ success: false, message: "Cannot update status of a resolved ticket" });
+        }
+
         await ticketModel.findByIdAndUpdate(ticketId, { status });
         res.json({ success: true, message: "Ticket status updated" });
     } catch (error) {
