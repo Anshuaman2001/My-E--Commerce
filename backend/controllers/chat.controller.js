@@ -3,47 +3,72 @@ import { v2 as cloudinary } from "cloudinary"
 import orderModel from "../models/order.model.js";
 import ticketModel from "../models/ticket.model.js";
 
+import userModel from "../models/user.model.js";
+
 const chatMessage = async (req, res) => {
     try {
         const { userId, message, history } = req.body;
         const lowerMsg = message.toLowerCase();
 
-        // 1. Context Gathering (Fetch user orders)
+        // 1. Context Gathering (Fetch user profile and orders)
+        const user = await userModel.findById(userId);
         const orders = await orderModel.find({ userId });
         const lastOrder = orders.length > 0 ? orders[orders.length - 1] : null;
 
-        // 2. Intent Detection (Simplified for baseline)
-        let contextInfo = "";
+        // 2. Build Rich User Context
+        let contextInfo = `User Name: ${user ? user.name : 'Valued Customer'}. `;
         if (lastOrder) {
-            contextInfo = `The user's last order ID is ${lastOrder._id}, items: ${lastOrder.items.map(i => i.name).join(", ")}, total: ${lastOrder.amount}, status: ${lastOrder.status}, date: ${new Date(lastOrder.date).toLocaleDateString()}.`;
+            contextInfo += `Last order ID: ${lastOrder._id}, items: ${lastOrder.items.map(i => i.name).join(", ")}, total: ${lastOrder.amount}, status: ${lastOrder.status}, date: ${new Date(lastOrder.date).toLocaleDateString()}. `;
+        }
+        if (user && user.addressData && user.addressData.length > 0) {
+            const addr = user.addressData[0];
+            contextInfo += `Default shipping address: ${addr.street}, ${addr.city}. `;
         }
 
-        const systemPrompt = `You are the AI Customer Support Assistant for "Forever", a premium e-commerce clothing store.
-        Store Info: 7-day return policy, shipping takes 3-7 days, 100% original products.
+        const systemPrompt = `You are "Forever AI", the premium personal shopping assistant for Forever, a high-end fashion e-commerce store.
+        Your personality: Elegant, enthusiastic, professional, and deeply helpful.
+        Your Goal: Provide a "white-glove" service experience. Use the user's name often and make them feel special.
+        
+        Store Information:
+        - We specialize in high-quality, timeless fashion.
+        - Return Policy: 7-day hassle-free returns in original condition.
+        - Shipping: Fast delivery (3-7 business days).
+        - Products: 100% authentic and premium.
+        
         User Context: ${contextInfo}
-        Be friendly, helpful, and concise. If the user wants to log a complaint, tell them to type "log complaint" followed by their message.`;
+        
+        Current conversation rules:
+        1. Keep responses concise but charming (max 2-3 sentences unless explaining something).
+        2. If they ask about an order, refer to their specific last order if available.
+        3. If they seem unhappy, be empathetic and offer to help them log a complaint by typing "log complaint".
+        4. If they ask for style advice, be a fashion expert.`;
 
         // 3. AI Response Generation
         if (process.env.GEMINI_API_KEY) {
             try {
                 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-                const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+                const model = genAI.getGenerativeModel({ 
+                    model: "gemini-1.5-flash",
+                    systemInstruction: systemPrompt
+                });
 
                 const chat = model.startChat({
                     history: history ? history.map(h => ({
                         role: h.isBot ? "model" : "user",
                         parts: [{ text: h.text }]
                     })) : [],
-                    generationConfig: { maxOutputTokens: 200 }
+                    generationConfig: { 
+                        maxOutputTokens: 300,
+                        temperature: 0.7
+                    }
                 });
 
-                const result = await chat.sendMessage(`${systemPrompt}\n\nUser says: ${message}`);
+                const result = await chat.sendMessage(message);
                 const responseText = result.response.text();
                 
                 return res.json({ success: true, reply: responseText });
             } catch (aiError) {
                 console.error("AI Error:", aiError);
-                // Fallback to smart logic if AI fails
             }
         }
 

@@ -4,7 +4,7 @@ import productModel from './models/product.model.js'
 
 dotenv.config()
 
-const BASE = 'http://localhost:4000/images'
+const BASE = 'https://my-e-commerce-l82o.onrender.com/images'
 
 const products = [
     { name: "Women Round Neck Cotton Top", description: "A lightweight, usually knitted, pullover shirt.", price: 100, image: [`${BASE}/p_img1.png`], category: "Women", subCategory: "Topwear", sizes: ["S","M","L"], date: 1716634345448, bestseller: true },
