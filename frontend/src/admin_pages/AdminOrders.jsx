@@ -85,7 +85,12 @@ const AdminOrders = () => {
                 </div>
               </div>
               <p className='text-sm sm:text-[15px] font-bold text-gray-900'>{currency}{order.amount}</p>
-              <select onChange={(event) => statusHandler(event, order._id)} value={order.status} className='p-2 font-semibold border border-gray-200 outline-none focus:border-black transition-colors rounded'>
+              <select 
+                onChange={(event) => statusHandler(event, order._id)} 
+                value={order.status} 
+                disabled={order.status === 'Cancelled'}
+                className={`p-2 font-semibold ${order.status === 'Cancelled' ? 'bg-gray-100 cursor-not-allowed' : ''}`}
+              >
                 <option value="Order Placed">Order Placed</option>
                 <option value="Packing">Packing</option>
                 <option value="Shipped">Shipped</option>

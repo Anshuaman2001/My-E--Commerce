@@ -143,6 +143,16 @@ const userOrders = async (req, res) => {
 const updateStatus = async (req, res) => {
     try {
         const { orderId, status } = req.body
+        const order = await orderModel.findById(orderId);
+        
+        if (!order) {
+            return res.json({ success: false, message: 'Order not found' });
+        }
+
+        if (order.status === 'Cancelled') {
+            return res.json({ success: false, message: 'Cannot update status of a cancelled order' });
+        }
+
         await orderModel.findByIdAndUpdate(orderId, { status })
         res.json({ success: true, message: 'Status Updated' })
     } catch (error) {
@@ -166,7 +176,9 @@ const cancelOrder = async (req, res) => {
         }
 
         // Check if order is in a cancellable state
-        if (order.status === 'Delivered' || order.status === 'Cancelled') {
+        // user cannot cancel if it is Delivered, Cancelled, or Out for delivery
+        const nonCancellableStates = ['Delivered', 'Cancelled', 'Out for delivery'];
+        if (nonCancellableStates.includes(order.status)) {
             return res.json({ success: false, message: `Cannot cancel order after it is ${order.status.toLowerCase()}` });
         }
 
