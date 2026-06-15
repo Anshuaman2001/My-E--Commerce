@@ -21,3 +21,8 @@ a.active hr{
   width: max-content;
   animation: marquee 35s linear infinite;
 }
+
+html, body {
+  overflow-x: hidden;
+  max-width: 100%;
+}

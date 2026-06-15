@@ -85,7 +85,7 @@ const Navbar = () => {
         >
             <div className={`max-w-7xl mx-auto flex items-center justify-between transition-all duration-500 ${
                 scrolled 
-                ? 'bg-white/80 backdrop-blur-xl border border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.08)] px-8 py-3 rounded-full' 
+                ? 'bg-white/80 backdrop-blur-xl border border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.08)] px-4 sm:px-8 py-3 rounded-2xl sm:rounded-full' 
                 : ''
             }`}>
                 {/* Logo */}
@@ -119,7 +119,7 @@ const Navbar = () => {
                 </ul>
 
                 {/* Icons */}
-                <div className='flex items-center gap-6'>
+                <div className='flex items-center gap-4 sm:gap-6'>
                     <motion.div variants={linkVariants} whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
                         <Search onClick={() => setShowSearch(true)} className='w-5 h-5 cursor-pointer text-gray-700 hover:text-[#ff4f00] transition-colors' />
                     </motion.div>

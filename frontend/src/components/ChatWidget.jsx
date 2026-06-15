@@ -137,10 +137,10 @@ const ChatWidget = () => {
     ];
 
     return (
-        <div ref={widgetRef} className='fixed bottom-8 right-24 z-[9999] font-sans pointer-events-none'>
+        <div ref={widgetRef} className='fixed bottom-8 right-4 sm:right-24 z-[9999] font-sans pointer-events-none'>
             {/* Chat Window */}
             {isOpen && (
-                <div className='absolute bottom-0 right-0 w-[350px] sm:w-[400px] h-[550px] bg-white rounded-2xl shadow-2xl border border-gray-100 flex flex-col overflow-hidden animate-in slide-in-from-bottom-5 duration-300 pointer-events-auto'>
+                <div className='absolute bottom-0 right-0 w-[calc(100vw-2rem)] xs:w-[350px] sm:w-[400px] h-[550px] bg-white rounded-2xl shadow-2xl border border-gray-100 flex flex-col overflow-hidden animate-in slide-in-from-bottom-5 duration-300 pointer-events-auto'>
                     {/* Header */}
                     <div className='bg-black text-white p-5 flex items-center justify-between shadow-lg'>
                         <div className='flex items-center gap-3'>

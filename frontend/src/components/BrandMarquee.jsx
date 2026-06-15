@@ -9,7 +9,7 @@ const BrandMarquee = () => {
     const displayBrands = [...brands, ...brands, ...brands];
 
     return (
-        <div className="relative w-[100vw] left-1/2 right-1/2 -ml-[50vw] bg-transparent py-6 mt-2 mb-8 overflow-hidden">
+        <div className="relative w-full bg-transparent py-6 mt-2 mb-8 overflow-hidden">
             <div className="animate-marquee whitespace-nowrap flex items-center">
                 {displayBrands.map((brand, index) => (
                     <React.Fragment key={index}>
