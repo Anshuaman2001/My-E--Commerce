@@ -27,14 +27,13 @@ const ChatWidget = () => {
     }
 
     const endChat = () => {
-        if (window.confirm("Are you sure you want to end this chat and clear the history?")) {
-            setMessages([
-                { text: `Hi ${userData ? userData.name : 'there'}! I'm your Forever AI Assistant. How can I help you today?`, isBot: true }
-            ]);
-            sessionStorage.removeItem('chat_history');
-            setComplaintMode(false);
-            setImage(null);
-        }
+        setMessages([
+            { text: `Hi ${userData ? userData.name : 'there'}! I'm your Forever AI Assistant. How can I help you today?`, isBot: true }
+        ]);
+        sessionStorage.removeItem('chat_history');
+        setComplaintMode(false);
+        setImage(null);
+        toast.success("Chat history cleared and reset");
     }
 
     useEffect(() => {
