@@ -26,3 +26,18 @@ html, body {
   overflow-x: hidden;
   max-width: 100%;
 }
+
+/* Custom scrollbar for review/Q&A lists */
+.custom-scroll::-webkit-scrollbar {
+  width: 4px;
+}
+.custom-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scroll::-webkit-scrollbar-thumb {
+  background: #e5e7eb;
+  border-radius: 999px;
+}
+.custom-scroll::-webkit-scrollbar-thumb:hover {
+  background: #f97316;
+}

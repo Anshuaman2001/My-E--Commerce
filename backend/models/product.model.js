@@ -12,7 +12,8 @@ const productSchema = new mongoose.Schema({
     stock: { type: Number, default: 10 },
     discountPrice: { type: Number },
     bankOffers: { type: Array, default: [] },
-    reviews: { type: Array, default: [] },
+    reviews: { type: Array, default: [] },   // [{userId, name, rating, comment, date, verified, media:[{type,url}], socialLink}]
+    questions: { type: Array, default: [] }, // [{userId, name, question, date, answers:[{userId,name,answer,date,isAdmin,isVerifiedBuyer}]}]
     date: { type: Number, required: true }
 })
 

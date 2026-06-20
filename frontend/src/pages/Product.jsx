@@ -1,24 +1,45 @@
 import React, { useContext, useEffect, useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams, useNavigate } from 'react-router-dom'
 import { ShopContext } from '../context/ShopContext';
 import { assets } from '../assets/assets';
 import RelatedProducts from '../components/RelatedProducts';
-import { Heart, Activity, ShoppingBag } from 'lucide-react';
+import { Heart, Activity, ShoppingBag, Zap } from 'lucide-react';
 import ReviewSection from '../components/ReviewSection';
 import RecentlyViewed from '../components/RecentlyViewed';
 import { motion } from 'framer-motion';
 import Magnet from '../components/Magnet';
+import { toast } from 'react-toastify';
 
 const Product = () => {
 
   const { productId } = useParams();
-  const { products, currency, addToCart, wishlist, toggleWishlist } = useContext(ShopContext);
+  const { products, currency, addToCart, wishlist, toggleWishlist, token } = useContext(ShopContext);
+  const navigate = useNavigate();
   const [productData, setProductData] = useState(false);
   const [image, setImage] = useState('')
   const [size, setSize] = useState('')
 
   const isWishlisted = wishlist.includes(productId);
-// ... existing fetchProductData ...
+
+  const handleBuyNow = () => {
+    if (!size) {
+      toast.error('Please select a size');
+      return;
+    }
+    if (!token) {
+      toast.info('Please login to continue');
+      navigate('/login');
+      return;
+    }
+    // Store buy-now item in sessionStorage and go straight to checkout
+    const buyNowItem = {
+      ...productData,
+      size,
+      quantity: 1,
+    };
+    sessionStorage.setItem('buyNowItem', JSON.stringify(buyNowItem));
+    navigate('/place-order?buynow=1');
+  };
   const fetchProductData = async () => {
 
     products.map((item) => {
@@ -138,22 +159,31 @@ const Product = () => {
                 ))}
               </div>
           </div>
-          <div className='flex items-center gap-4'>
-            <Magnet strength={0.1}>
-              <motion.button 
+          <div className='flex flex-col gap-3 sm:flex-row sm:items-center'>
+            <div className='flex items-center gap-3'>
+              <Magnet strength={0.1}>
+                <motion.button 
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => addToCart(productData._id, size)} 
+                  className='bg-black text-white px-8 py-3 text-sm active:bg-gray-700 hover:shadow-xl transition-shadow'
+                >
+                  ADD TO CART
+                </motion.button>
+              </Magnet>
+              <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                animate={{ scale: [1, 1.02, 1] }}
-                transition={{ repeat: Infinity, duration: 2 }}
-                onClick={() => addToCart(productData._id, size)} 
-                className='bg-black text-white px-8 py-3 text-sm active:bg-gray-700 hover:shadow-xl transition-shadow'
+                onClick={handleBuyNow}
+                className='flex items-center gap-2 bg-orange-500 hover:bg-orange-600 text-white px-8 py-3 text-sm font-semibold transition-all shadow-lg shadow-orange-200 hover:shadow-orange-300'
               >
-                ADD TO CART
+                <Zap size={16} className='fill-white' />
+                BUY NOW
               </motion.button>
-            </Magnet>
+            </div>
             <button 
               onClick={() => toggleWishlist(productData._id)}
-              className='p-3 border rounded-full hover:bg-gray-50 transition-all active:scale-125 group'
+              className='p-3 border rounded-full hover:bg-gray-50 transition-all active:scale-125 group self-start sm:self-auto'
               title={isWishlisted ? "Remove from Wishlist" : "Add to Wishlist"}
             >
               <motion.div
@@ -180,6 +210,7 @@ const Product = () => {
       <ReviewSection 
         productId={productId} 
         reviews={productData.reviews || []} 
+        questions={productData.questions || []}
         onReviewAdded={fetchProductData} 
       />
 

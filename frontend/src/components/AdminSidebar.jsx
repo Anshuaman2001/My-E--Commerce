@@ -1,6 +1,6 @@
 import React from 'react'
 import { NavLink } from 'react-router-dom'
-import { PlusCircle, List, ShoppingBag, MessageSquare } from 'lucide-react'
+import { PlusCircle, List, ShoppingBag, MessageSquare, Star } from 'lucide-react'
 
 const AdminSidebar = () => {
   return (
@@ -19,6 +19,11 @@ const AdminSidebar = () => {
             <NavLink className='flex items-center gap-3 border border-gray-300 border-r-0 px-3 py-2 rounded-l' to="/admin/orders">
                 <ShoppingBag size={20} />
                 <p className='hidden md:block'>Orders</p>
+            </NavLink>
+
+            <NavLink className='flex items-center gap-3 border border-gray-300 border-r-0 px-3 py-2 rounded-l' to="/admin/reviews">
+                <Star size={20} />
+                <p className='hidden md:block'>Reviews & Q&A</p>
             </NavLink>
 
             <NavLink className='flex items-center gap-3 border border-gray-300 border-r-0 px-3 py-2 rounded-l' to="/admin/tickets">

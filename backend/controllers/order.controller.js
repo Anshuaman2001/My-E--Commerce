@@ -6,14 +6,37 @@ import Stripe from 'stripe'
 const currency = 'inr'
 const deliveryCharge = 10
 
+// Pool of delivery partners for auto-assignment
+const DELIVERY_PARTNERS = [
+    { name: "Vikram Malhotra", phone: "+91 98765 01234", vehicle: "DL 3C AB 1234", company: "BlueDart", rating: "4.9", avatarSeed: "VM" },
+    { name: "Amit Patel", phone: "+91 98234 56789", vehicle: "MH 12 CD 5678", company: "Delhivery", rating: "4.7", avatarSeed: "AP" },
+    { name: "Rohan Sharma", phone: "+91 99112 23344", vehicle: "KA 03 EF 9012", company: "Shadowfax", rating: "4.8", avatarSeed: "RS" },
+    { name: "Deepak Verma", phone: "+91 97890 12345", vehicle: "TN 09 GH 3456", company: "Ekart", rating: "4.6", avatarSeed: "DV" },
+    { name: "Suresh Yadav", phone: "+91 96543 21098", vehicle: "RJ 14 KL 7890", company: "DTDC", rating: "4.8", avatarSeed: "SY" }
+];
+
+// Deterministically pick a delivery partner based on order ID
+const pickDeliveryPartner = (orderId) => {
+    let hash = 0;
+    for (let i = 0; i < orderId.length; i++) {
+        hash = orderId.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    return DELIVERY_PARTNERS[Math.abs(hash) % DELIVERY_PARTNERS.length];
+};
+
 // Placing orders using COD Method
 const placeOrder = async (req, res) => {
     try {
         const { userId, items, amount, address } = req.body;
 
+        const itemsWithPins = items.map(item => ({
+            ...item,
+            pin: Math.floor(100000 + Math.random() * 900000).toString()
+        }));
+
         const orderData = {
             userId,
-            items,
+            items: itemsWithPins,
             address,
             amount,
             paymentMethod: "COD",
@@ -42,9 +65,14 @@ const placeOrderStripe = async (req, res) => {
 
         const stripe = new Stripe(process.env.STRIPE_SECRET_KEY)
 
+        const itemsWithPins = items.map(item => ({
+            ...item,
+            pin: Math.floor(100000 + Math.random() * 900000).toString()
+        }));
+
         const orderData = {
             userId,
-            items,
+            items: itemsWithPins,
             address,
             amount,
             paymentMethod: "Stripe",
@@ -153,11 +181,46 @@ const updateStatus = async (req, res) => {
             return res.json({ success: false, message: 'Cannot update status of a cancelled order' });
         }
 
-        await orderModel.findByIdAndUpdate(orderId, { status })
+        const updateData = { status };
+        if (status === 'Packing') updateData.packedAt = Date.now();
+        if (status === 'Shipped') {
+            updateData.shippedAt = Date.now();
+            // Auto-assign delivery partner if not already assigned
+            if (!order.deliveryPartner || !order.deliveryPartner.name) {
+                updateData.deliveryPartner = pickDeliveryPartner(orderId);
+            }
+        }
+        if (status === 'Out for delivery') {
+            updateData.outForDeliveryAt = Date.now();
+            // Auto-assign delivery partner if not already assigned
+            if (!order.deliveryPartner || !order.deliveryPartner.name) {
+                updateData.deliveryPartner = pickDeliveryPartner(orderId);
+            }
+        }
+        if (status === 'Delivered') updateData.deliveredAt = Date.now();
+        if (status === 'Cancelled') updateData.cancelledAt = Date.now();
+
+        await orderModel.findByIdAndUpdate(orderId, updateData)
         res.json({ success: true, message: 'Status Updated' })
     } catch (error) {
         console.log(error)
         res.json({ success: false, message: error.message })
+    }
+}
+
+// Update delivery partner details from Admin Panel
+const updateDeliveryPartner = async (req, res) => {
+    try {
+        const { orderId, deliveryPartner } = req.body;
+        const order = await orderModel.findById(orderId);
+        if (!order) {
+            return res.json({ success: false, message: 'Order not found' });
+        }
+        await orderModel.findByIdAndUpdate(orderId, { deliveryPartner });
+        res.json({ success: true, message: 'Delivery partner updated' });
+    } catch (error) {
+        console.log(error);
+        res.json({ success: false, message: error.message });
     }
 }
 
@@ -182,7 +245,7 @@ const cancelOrder = async (req, res) => {
             return res.json({ success: false, message: `Cannot cancel order after it is ${order.status.toLowerCase()}` });
         }
 
-        await orderModel.findByIdAndUpdate(orderId, { status: "Cancelled", cancelReason: cancelReason || "" });
+        await orderModel.findByIdAndUpdate(orderId, { status: "Cancelled", cancelReason: cancelReason || "", cancelledAt: Date.now() });
         res.json({ success: true, message: "Order Cancelled" });
 
     } catch (error) {
@@ -191,4 +254,4 @@ const cancelOrder = async (req, res) => {
     }
 }
 
-export { verifyStripe, placeOrder, placeOrderStripe, placeOrderRazorpay, allOrders, userOrders, updateStatus, cancelOrder }
+export { verifyStripe, placeOrder, placeOrderStripe, placeOrderRazorpay, allOrders, userOrders, updateStatus, cancelOrder, updateDeliveryPartner }

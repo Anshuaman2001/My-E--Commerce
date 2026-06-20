@@ -9,7 +9,20 @@ const orderSchema = new mongoose.Schema({
     paymentMethod: { type: String, required: true },
     payment: { type: Boolean, required: true, default: false },
     cancelReason: { type: String, default: "" },
-    date: { type: Number, required: true }
+    date: { type: Number, required: true },
+    packedAt: { type: Number },
+    shippedAt: { type: Number },
+    outForDeliveryAt: { type: Number },
+    deliveredAt: { type: Number },
+    cancelledAt: { type: Number },
+    deliveryPartner: {
+        name: { type: String, default: "" },
+        phone: { type: String, default: "" },
+        vehicle: { type: String, default: "" },
+        company: { type: String, default: "" },
+        rating: { type: String, default: "" },
+        avatarSeed: { type: String, default: "" }
+    }
 })
 
 const orderModel = mongoose.models.order || mongoose.model('order', orderSchema);

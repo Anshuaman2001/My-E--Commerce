@@ -28,6 +28,8 @@ import AdminAdd from './admin_pages/AdminAdd'
 import AdminList from './admin_pages/AdminList'
 import AdminOrders from './admin_pages/AdminOrders'
 import AdminTickets from './admin_pages/AdminTickets'
+import AdminReviews from './admin_pages/AdminReviews'
+
 import { ShopContext } from './context/ShopContext'
 import { useContext } from 'react'
 import ActionHub from './components/ActionHub'
@@ -86,6 +88,8 @@ const App = () => {
                             <Route path='list' element={<AdminList />} />
                             <Route path='orders' element={<AdminOrders />} />
                             <Route path='tickets' element={<AdminTickets />} />
+                            <Route path='reviews' element={<AdminReviews />} />
+
                         </Route>
                     </Routes>
                 </motion.div>
