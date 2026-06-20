@@ -60,6 +60,19 @@ const AdminAdd = () => {
   const onSubmitHandler = async (e) => {
     e.preventDefault();
 
+    const numPrice = Number(price);
+    const numDiscount = Number(discountPrice);
+
+    if (isNaN(numPrice) || numPrice <= 0) {
+        toast.error("Price must be a valid positive number");
+        return;
+    }
+
+    if (discountPrice !== "" && (isNaN(numDiscount) || numDiscount < 0 || numDiscount >= numPrice)) {
+        toast.error("Discount price must be a valid positive number and less than the actual price");
+        return;
+    }
+
     try {
       const formData = new FormData()
 

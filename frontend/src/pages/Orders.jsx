@@ -4,6 +4,7 @@ import Title from '../components/Title';
 import axios from 'axios';
 import CancelModal from '../components/CancelModal';
 import TrackingModal from '../components/TrackingModal';
+import ComplaintModal from '../components/ComplaintModal';
 import { AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { RefreshCw, Package } from 'lucide-react';
@@ -25,6 +26,7 @@ const Orders = () => {
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [selectedOrderId, setSelectedOrderId] = useState(null);
   const [trackItem, setTrackItem] = useState(null);
+  const [complaintItem, setComplaintItem] = useState(null);
   const [refreshing, setRefreshing] = useState(false);
   const pollingRef = useRef(null);
   const trackItemIdRef = useRef(null);
@@ -186,6 +188,12 @@ const Orders = () => {
                 </div>
                 <div className='flex items-center gap-4'>
                   <button
+                    onClick={() => setComplaintItem(item)}
+                    className='border border-gray-200 text-gray-600 hover:bg-gray-50 px-4 py-2 text-sm font-medium rounded-sm transition-colors'
+                  >
+                    Raise Complaint
+                  </button>
+                  <button
                     onClick={() => handleTrackItem(item)}
                     className='border border-orange-200 text-orange-600 hover:bg-orange-50 px-4 py-2 text-sm font-medium rounded-sm transition-colors'
                   >
@@ -220,6 +228,16 @@ const Orders = () => {
             item={trackItem}
             onClose={handleCloseTracking}
             onRefresh={handleRefreshForModal}
+          />
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {complaintItem && (
+          <ComplaintModal
+            item={complaintItem}
+            onClose={() => setComplaintItem(null)}
+            onSubmitSuccess={loadOrderData}
           />
         )}
       </AnimatePresence>

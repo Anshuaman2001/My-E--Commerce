@@ -7,7 +7,7 @@ import { Trash2, Edit } from 'lucide-react'
 
 const AdminList = () => {
   const navigate = useNavigate();
-  const { backendUrl, token, currency } = useContext(ShopContext);
+  const { backendUrl, token, currency, getProductsData } = useContext(ShopContext);
   const [list, setList] = useState([])
 
   const fetchList = async () => {
@@ -32,6 +32,7 @@ const AdminList = () => {
       if (response.data.success) {
         toast.success(response.data.message)
         await fetchList();
+        if (getProductsData) await getProductsData();
       } else {
         toast.error(response.data.message)
       }

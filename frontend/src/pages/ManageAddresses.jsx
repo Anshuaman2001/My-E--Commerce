@@ -25,6 +25,14 @@ const ManageAddresses = () => {
 
     const onSubmitHandler = async (e) => {
         e.preventDefault();
+
+        // Phone number exactly 10 digits
+        const phoneStr = String(formData.phone).trim();
+        if (phoneStr.length !== 10 || isNaN(Number(phoneStr))) {
+            toast.error("Phone number must be exactly 10 digits");
+            return;
+        }
+
         await addAddress(formData);
         setShowForm(false);
         setFormData({

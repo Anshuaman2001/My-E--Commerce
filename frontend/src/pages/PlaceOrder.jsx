@@ -86,6 +86,21 @@ const PlaceOrder = () => {
 
     const onSubmitHandler = async (event) => {
         event.preventDefault();
+
+        // Phone number exactly 10 digits
+        const phoneStr = String(formData.phone).trim();
+        if (phoneStr.length !== 10 || isNaN(Number(phoneStr))) {
+            toast.error("Phone number must be exactly 10 digits");
+            return;
+        }
+
+        // Email in valid format
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(formData.email.trim())) {
+            toast.error("Please enter a valid email address");
+            return;
+        }
+
         try {
             let orderItems = [];
 

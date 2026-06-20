@@ -251,11 +251,8 @@ const ShopContextProvider = (props) => {
     const getProductsData = async () => {
         try {
             const response = await axios.get(backendUrl + '/api/product/list')
-            if (response.data.success && response.data.products.length > 0) {
+            if (response.data.success) {
                 setProducts(response.data.products.reverse())
-            } else {
-                // Fallback to local data while DB is empty
-                setProducts(localProducts)
             }
         } catch (error) {
             console.log(error)
@@ -302,7 +299,7 @@ const ShopContextProvider = (props) => {
         addressList, addAddress, deleteAddress, getAddressList,
         wishlist, toggleWishlist, getWishlistData,
         getProductQuantity, getWishlistCount,
-        userTickets, getUserTickets
+        userTickets, getUserTickets, getProductsData
     }
 
     return (
