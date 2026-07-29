@@ -55,6 +55,13 @@ const App = () => {
         window.addEventListener('online', markOnline);
         window.addEventListener('offline', markOffline);
 
+        // Register service worker to pre-cache the offline video
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js').catch((err) => {
+                console.warn('Service Worker registration failed:', err);
+            });
+        }
+
         return () => {
             window.removeEventListener('online', markOnline);
             window.removeEventListener('offline', markOffline);
