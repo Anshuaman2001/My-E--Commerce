@@ -1,10 +1,11 @@
 import { RefreshCw, WifiOff } from 'lucide-react'
+import offlineVideo from '../assets/videos/offline.mp4'
 
 const OfflineScreen = () => (
     <main className='fixed inset-0 z-[20000] grid min-h-[100dvh] place-items-center overflow-hidden bg-slate-950 p-4 text-center text-white sm:p-8'>
         <video
             className='absolute inset-0 h-full w-full object-cover opacity-40 sm:opacity-50'
-            src='/videos/offline.mp4'
+            src={offlineVideo}
             autoPlay
             loop
             muted

@@ -1,17 +1,7 @@
-const CACHE_NAME = 'forever-offline-v1';
+const CACHE_NAME = 'forever-offline-v2';
 
-// Files to cache immediately on install
-const PRECACHE_ASSETS = [
-  '/videos/offline.mp4',
-];
-
-// Install: cache the offline video right away
-self.addEventListener('install', (event) => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(PRECACHE_ASSETS);
-    })
-  );
+// Install: skip waiting immediately
+self.addEventListener('install', () => {
   self.skipWaiting();
 });
 
@@ -29,23 +19,30 @@ self.addEventListener('activate', (event) => {
   self.clients.claim();
 });
 
-// Fetch: serve from cache if available, else network
+// Fetch: cache-first for video assets, network-first for everything else
 self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
 
-  // Only handle same-origin requests
+  // Only handle same-origin GET requests
   if (url.origin !== self.location.origin) return;
+  if (event.request.method !== 'GET') return;
 
-  // For the offline video, always try cache first
-  if (url.pathname === '/videos/offline.mp4') {
+  // Cache-first strategy for mp4 video files (covers hashed Vite asset filenames)
+  if (url.pathname.endsWith('.mp4')) {
     event.respondWith(
-      caches.match(event.request).then((cached) => {
-        return cached || fetch(event.request).then((response) => {
-          // Cache it for next time
-          const clone = response.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
+      caches.open(CACHE_NAME).then(async (cache) => {
+        const cached = await cache.match(event.request);
+        if (cached) return cached;
+
+        try {
+          const response = await fetch(event.request);
+          if (response.ok) {
+            cache.put(event.request, response.clone());
+          }
           return response;
-        });
+        } catch {
+          return new Response('Video not cached yet.', { status: 503 });
+        }
       })
     );
   }
