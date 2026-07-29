@@ -7,7 +7,7 @@ import adminAuth from '../middleware/adminAuth.js';
 const chatRouter = express.Router();
 
 chatRouter.post('/message', authUser, chatMessage);
-chatRouter.post('/ticket', authUser, upload.single('image'), createTicket);
+chatRouter.post('/ticket', authUser, upload.array('images', 3), createTicket);
 chatRouter.post('/user-tickets', authUser, getUserTickets);
 chatRouter.post('/tickets/list', adminAuth, listTickets);
 chatRouter.post('/tickets/status', adminAuth, updateTicketStatus);

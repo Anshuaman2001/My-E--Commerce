@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { Routes, Route, useLocation } from 'react-router-dom'
@@ -31,10 +31,10 @@ import AdminTickets from './admin_pages/AdminTickets'
 import AdminReviews from './admin_pages/AdminReviews'
 
 import { ShopContext } from './context/ShopContext'
-import { useContext } from 'react'
 import ActionHub from './components/ActionHub'
 import { AnimatePresence, motion } from 'framer-motion'
 import CookieConsent from './components/CookieConsent'
+import OfflineScreen from './components/OfflineScreen'
 
 const AdminProtectedRoute = ({ children }) => {
     const { userData, token } = useContext(ShopContext)
@@ -46,6 +46,22 @@ const AdminProtectedRoute = ({ children }) => {
 
 const App = () => {
     const location = useLocation();
+    const [isOnline, setIsOnline] = useState(() => navigator.onLine);
+
+    useEffect(() => {
+        const markOnline = () => setIsOnline(true);
+        const markOffline = () => setIsOnline(false);
+
+        window.addEventListener('online', markOnline);
+        window.addEventListener('offline', markOffline);
+
+        return () => {
+            window.removeEventListener('online', markOnline);
+            window.removeEventListener('offline', markOffline);
+        };
+    }, []);
+
+    if (!isOnline) return <OfflineScreen />;
 
     return (
         <div className='px-4 sm:px-[5vw] md:px-[7vw] lg:px-[9vw] pt-16 sm:pt-20 relative overflow-x-hidden min-h-screen'>
@@ -104,3 +120,4 @@ const App = () => {
 }
 
 export default App
+
